@@ -1,1 +1,1 @@
-THIS IS A TEST!
+A node server for animating a stick figure in your browser using motion capture from a kinect and "kinetic" html5 2d animation.
