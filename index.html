@@ -1,0 +1,426 @@
+<!doctype html>
+<html>
+<head>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+	<script src="http://underscorejs.org/underscore-min.js"></script>
+	<script src="./kinetic-v4.3.1.min.js"></script>
+<title>Kinect Test</title>
+<style>
+#head{
+	position:absolute;
+	border:8px solid black;
+	background-color:white;
+	width:75px;
+	height:85px;
+	border-radius:45px;
+}
+#torso{
+	position:absolute;
+	background-color:black;
+	width:8px;
+	height:220px;
+	border-radius:30px;
+}
+</style>
+
+</head>
+
+<body>
+	<!-- <canvas id="myCanvas" width="800" height="600"></canvas> -->
+	<div id="torso"></div>
+	<div id="head"></div>
+	<div id="container"></div>
+</body>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+
+var socket = io.connect('http://localhost');
+
+var joints = [
+  "head",
+  "neck",
+  "torso",
+  "waist",
+  "left_collar",
+  "left_shoulder",
+  "left_elbow",
+  "left_wrist",
+  "left_hand",
+  "left_fingertip",
+  "right_collar",
+  "right_shoulder",
+  "right_elbow",
+  "right_wrist",
+  "right_hand",
+  "right_fingertip",
+  "left_hip",
+  "left_knee",
+  "left_ankle",
+  "left_foot",
+  "right_hip",
+  "right_knee",
+  "right_ankle",
+  "right_foot"
+]
+
+var linesToDraw = [
+	'neck',
+	'torso',
+	'left_bicep',
+	'right_bicep',
+	'left_forearm',
+	'right_forearm',
+	'left_hand',
+	'right_hand',
+	'left_thiegh',
+	'right_thiegh',
+	'left_calf',
+	'right_calf',
+	'left_foot',
+	'right_foot'
+]
+
+var events = [
+	'newuser',
+	'userexit',
+	'lostuser',
+	'posedetected',
+	'calibrationstart',
+	'calibrationsucceed',
+	'calibrationfail'
+	]
+
+var users = {}
+
+socket.on('newuser', function(data){
+	// var newUser = new User(data.u);
+	// //newUser.draw()
+	// users[data.u] = newUser
+})
+
+socket.on('userexit', function(data){
+	//delete users[data.u]
+})
+socket.on('lostuser', function(data){
+	//delete users[data.u]
+})
+
+events.forEach(function(eventType) {
+	socket.on(eventType, function(data) {
+		if(data.e==='newuser'){
+			// var newUser = new User(data.u);
+			// newUser.draw()
+			// users[data.u] = newUser
+		}
+		console.log('User:')
+		console.log(data)
+		console.log(' emitted event: '+ eventType);
+		//socket.emit(eventType, {"u":userId, "e":eventType})
+	});
+});
+
+var Lines = function(){
+
+	this.layer = new Kinetic.Layer()
+	linesToDraw.forEach(function(line){
+		this[line] = new Kinetic.Line({
+				points: [0,0,0,0],
+				stroke: 'black',
+				strokeWidth: 10,
+				lineCap: 'round',
+				lineJoin: 'round'
+			})
+		this.layer.add(this[line])
+	})
+}
+
+
+var User = function(num){
+	this.number = num
+	joints.forEach(function(part){
+		this[part] = {
+			"x":0,
+			"y":0,
+			"z":0
+		}
+	})
+	this.update = function(joint, newVector){
+		this[joint]['x']=newVector.x
+		this[joint]['y']=newVector.y
+		this[joint]['z']=newVector.z
+	}
+	
+	this.generate = function(){
+
+		//var layer = this.layer
+		// _.each(this.lines, function(line){
+		// 	this.layer.add(line);
+		// })
+		// linesToDraw.forEach(function(lineToDraw){
+		// 	var line = new Kinetic.Line({
+		// 		points: [0,0,0,0],
+		// 		stroke: 'black',
+		// 		strokeWidth: 10,
+		// 		lineCap: 'round',
+		// 		lineJoin: 'round'
+		// 	});
+		// 	this['lines'][lineToDraw] = line
+		// 	layer.add(this.lines[lineToDraw])
+		// })
+		
+
+	}
+	this.generate();
+}
+
+var jointData = {};
+joints.forEach(function(joint){
+	jointData[joint]={
+		"x":0,
+		"y":0,
+		"z":0
+	}
+})
+
+var stage = new Kinetic.Stage({
+        container: 'container',
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+
+      var layer = new Kinetic.Layer();
+      var lines = {};
+
+      //linesToDraw.forEach(function(lineName){
+	var torso = 
+	new Kinetic.Line({
+		points: [0,0,0,0],
+		stroke: 'black',
+		strokeWidth: 10,
+		lineCap: 'round',
+		lineJoin: 'round'
+	});
+	layer.add(torso)
+	var left_bicep = 
+	new Kinetic.Line({
+		points: [0,0,0,0],
+		stroke: 'black',
+		strokeWidth: 10,
+		lineCap: 'round',
+		lineJoin: 'round'
+	});
+	layer.add(left_bicep)
+	var right_bicep = 
+	new Kinetic.Line({
+		points: [0,0,0,0],
+		stroke: 'black',
+		strokeWidth: 10,
+		lineCap: 'round',
+		lineJoin: 'round'
+	});
+	layer.add(right_bicep)
+	var left_forearm = 
+	new Kinetic.Line({
+		points: [0,0,0,0],
+		stroke: 'black',
+		strokeWidth: 10,
+		lineCap: 'round',
+		lineJoin: 'round'
+	});
+	layer.add(left_forearm)
+	var right_forearm = 
+	new Kinetic.Line({
+		points: [0,0,0,0],
+		stroke: 'black',
+		strokeWidth: 10,
+		lineCap: 'round',
+		lineJoin: 'round'
+	});
+	layer.add(right_forearm)
+
+
+	var left_thiegh = 
+	new Kinetic.Line({
+		points: [0,0,0,0],
+		stroke: 'black',
+		strokeWidth: 10,
+		lineCap: 'round',
+		lineJoin: 'round'
+	});
+	layer.add(left_thiegh)
+	var right_thiegh = 
+	new Kinetic.Line({
+		points: [0,0,0,0],
+		stroke: 'black',
+		strokeWidth: 10,
+		lineCap: 'round',
+		lineJoin: 'round'
+	});
+	layer.add(right_thiegh)
+	var left_calf = 
+	new Kinetic.Line({
+		points: [0,0,0,0],
+		stroke: 'black',
+		strokeWidth: 10,
+		lineCap: 'round',
+		lineJoin: 'round'
+	});
+	layer.add(left_calf)
+	var right_calf = 
+	new Kinetic.Line({
+		points: [0,0,0,0],
+		stroke: 'black',
+		strokeWidth: 10,
+		lineCap: 'round',
+		lineJoin: 'round'
+	});
+	layer.add(right_calf)
+      //});
+      
+
+      //layer.add(line);
+
+      var rect = new Kinetic.Rect({
+        x: 239,
+        y: 75,
+        width: 100,
+        height: 50,
+        fill: 'green',
+        stroke: 'black',
+        strokeWidth: 4
+      });
+
+      // add the shape to the layer
+      layer.add(rect);
+
+      // add the layer to the stage
+      stage.add(layer);
+
+      //find scale that loses no capture space on screen
+      var wh = window.innerHeight;
+      var ww = window.innerWidth;
+      var scale;
+      if(wh/ww>3/4){
+      	console.log("Accomodating small width.")
+
+      	scale = ww/640/8
+      }else{
+      	console.log("Accomodating small height.")
+
+      	scale = wh/480/8
+      }
+      console.log("Scale is "+scale);
+
+		var yScale = -1;
+		var xScale = 1;
+		var xOffset = window.innerWidth/2;
+		var yOffset = window.innerHeight/2;
+
+      var animation = new Kinetic.Animation(function(frame){
+
+      		var commonWaistX = (jointData.left_hip.x + jointData.right_hip.x)/2*scale*xScale+xOffset
+			var commonWaistY = (jointData.left_hip.y + jointData.right_hip.y)/2*scale*yScale+yOffset
+			var commonShouldersX = jointData.neck.x*scale*xScale+xOffset
+			var commonShouldersY = jointData.neck.y*scale*yScale+yOffset
+			var leftElbowX = jointData.left_elbow.x*scale*xScale+xOffset
+			var leftElbowY = jointData.left_elbow.y*scale*yScale+yOffset
+
+      	//console.log("Bad points returning: "+jointData.right_hip.y+" and "+jointData.left_hip.y)
+	      	var torsoPoints = [
+				commonShouldersX,
+				commonShouldersY,
+				commonWaistX,
+				commonWaistY
+			]
+			torso.setPoints(torsoPoints)
+
+			var leftBicepPoints = [
+				commonShouldersX,
+				commonShouldersY,
+				leftElbowX,
+				leftElbowY
+			]
+			left_bicep.setPoints(leftBicepPoints)
+
+			var rightBicepPoints = [
+				commonShouldersX,
+				commonShouldersY,
+				jointData.right_elbow.x*scale*xScale+xOffset,
+				jointData.right_elbow.y*scale*yScale+yOffset
+			]
+			right_bicep.setPoints(rightBicepPoints)
+
+			var leftForearmPoints = [
+				jointData.left_hand.x*scale*xScale+xOffset,
+				jointData.left_hand.y*scale*yScale+yOffset,
+				leftElbowX,
+				leftElbowY
+			]
+			left_forearm.setPoints(leftForearmPoints)
+
+			var rightForearmPoints = [
+				jointData.right_hand.x*scale*xScale+xOffset,
+				jointData.right_hand.y*scale*yScale+yOffset,
+				jointData.right_elbow.x*scale*xScale+xOffset,
+				jointData.right_elbow.y*scale*yScale+yOffset
+			]
+			right_forearm.setPoints(rightForearmPoints)
+
+			//Below the waist:
+			var leftThieghPoints = [
+				commonWaistX,
+				commonWaistY,
+				jointData.left_knee.x*scale*xScale+xOffset,
+				jointData.left_knee.y*scale*yScale+yOffset
+			]
+			left_thiegh.setPoints(leftThieghPoints)
+
+			var rightThieghPoints = [
+				commonWaistX,
+				commonWaistY,
+				jointData.right_knee.x*scale*xScale+xOffset,
+				jointData.right_knee.y*scale*yScale+yOffset
+			]
+			right_thiegh.setPoints(rightThieghPoints)
+
+			var leftCalfPoints = [
+				jointData.left_foot.x*scale*xScale+xOffset,
+				jointData.left_foot.y*scale*yScale+yOffset,
+				jointData.left_knee.x*scale*xScale+xOffset,
+				jointData.left_knee.y*scale*yScale+yOffset
+			]
+			left_calf.setPoints(leftCalfPoints)
+
+			var rightCalfPoints = [
+				jointData.right_foot.x*scale*xScale+xOffset,
+				jointData.right_foot.y*scale*yScale+yOffset,
+				jointData.right_knee.x*scale*xScale+xOffset,
+				jointData.right_knee.y*scale*yScale+yOffset
+			]
+			right_calf.setPoints(rightCalfPoints)
+
+
+		}, layer);
+		animation.start();
+
+
+joints.forEach(function(jointName) {
+	socket.on(jointName, function(data){
+		jointData[jointName]['x'] = (data.x+xOffset)
+		jointData[jointName]['y'] = (data.y+yOffset)
+		//jointData[jointName]['z'] = data.z/scale + zOffset
+		//$('#'+jointName).css('left', data.x/scale);
+		//$('#'+jointName).css('top', (480-data.y)/scale);
+		console.log(jointName);
+		console.log(data);
+		console.log(jointData)
+	});
+});
+
+  socket.on('news', function (data) {
+  	console.log(data);
+  });
+</script>
+
+</html>

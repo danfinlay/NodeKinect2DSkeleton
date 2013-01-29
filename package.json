@@ -1,0 +1,12 @@
+{
+  "name": "kinect-experiment",
+  "version": "0.0.1",
+  "description": "My experiments with node kinect",
+  "dependencies": {
+    "openni": "~0.2.6",
+    "socket.io": "~0.9.13"
+  },
+  "scripts": {
+    "start": "node app.js"
+  }
+}
