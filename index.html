@@ -26,9 +26,6 @@
 </head>
 
 <body>
-	<!-- <canvas id="myCanvas" width="800" height="600"></canvas> -->
-	<div id="torso"></div>
-	<div id="head"></div>
 	<div id="container"></div>
 </body>
 
@@ -121,7 +118,6 @@ events.forEach(function(eventType) {
 });
 
 var Lines = function(){
-
 	this.layer = new Kinetic.Layer()
 	linesToDraw.forEach(function(line){
 		this[line] = new Kinetic.Line({
@@ -135,7 +131,7 @@ var Lines = function(){
 	})
 }
 
-
+//This user object is not presently in use, but may ultimately support multiple users.
 var User = function(num){
 	this.number = num
 	joints.forEach(function(part){
@@ -152,23 +148,6 @@ var User = function(num){
 	}
 	
 	this.generate = function(){
-
-		//var layer = this.layer
-		// _.each(this.lines, function(line){
-		// 	this.layer.add(line);
-		// })
-		// linesToDraw.forEach(function(lineToDraw){
-		// 	var line = new Kinetic.Line({
-		// 		points: [0,0,0,0],
-		// 		stroke: 'black',
-		// 		strokeWidth: 10,
-		// 		lineCap: 'round',
-		// 		lineJoin: 'round'
-		// 	});
-		// 	this['lines'][lineToDraw] = line
-		// 	layer.add(this.lines[lineToDraw])
-		// })
-		
 
 	}
 	this.generate();
@@ -193,6 +172,18 @@ var stage = new Kinetic.Stage({
       var lines = {};
 
       //linesToDraw.forEach(function(lineName){
+    var head = 
+	new Kinetic.Ellipse({
+		radius: {'x':30,'y':45},
+		x:0,
+		y:0,
+		stroke: 'black',
+		strokeWidth: 10,
+		lineCap: 'round',
+		lineJoin: 'round'
+	});
+	layer.add(head)
+
 	var torso = 
 	new Kinetic.Line({
 		points: [0,0,0,0],
@@ -277,22 +268,6 @@ var stage = new Kinetic.Stage({
 	});
 	layer.add(right_calf)
       //});
-      
-
-      //layer.add(line);
-
-      var rect = new Kinetic.Rect({
-        x: 239,
-        y: 75,
-        width: 100,
-        height: 50,
-        fill: 'green',
-        stroke: 'black',
-        strokeWidth: 4
-      });
-
-      // add the shape to the layer
-      layer.add(rect);
 
       // add the layer to the stage
       stage.add(layer);
@@ -327,6 +302,11 @@ var stage = new Kinetic.Stage({
 			var leftElbowY = jointData.left_elbow.y*scale*yScale+yOffset
 
       	//console.log("Bad points returning: "+jointData.right_hip.y+" and "+jointData.left_hip.y)
+	      	
+	      	
+	      	head.setX(jointData.head.x*scale*xScale+xOffset)
+	      	head.setY(jointData.head.y*scale*yScale+yOffset)
+
 	      	var torsoPoints = [
 				commonShouldersX,
 				commonShouldersY,

@@ -53,7 +53,7 @@ io.sockets.on('connection', function (socket) {
 	].forEach(function(eventType) {
 		context.on(eventType, function(userId) {
 			console.log('User %d emitted event: %s', userId, eventType);
-			socket.emit(eventType, {"u":userId, "e":eventType})
+			//socket.emit(eventType, {"u":userId, "e":eventType})
 		});
 	});
 	
